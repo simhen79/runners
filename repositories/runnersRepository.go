@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"runners/models"
 )
@@ -68,7 +67,7 @@ func (rr RunnersRepository) UpdateRunner(runner *models.Runner) *models.Response
 			first_name = $1,
 			last_name = $2,
 			age = $3,
-			country = $4, 
+			country = $4
 		WHERE id = $5
 	`
 	res, err := rr.dbHandler.Exec(query, runner.FirstName, runner.LastName, runner.Age, runner.Country, runner.ID)
@@ -100,7 +99,7 @@ func (rr RunnersRepository) GetRunner(runnerID string) (*models.Runner, *models.
 	query := `
 		SELECT id, first_name, last_name, age, is_active, country, personal_best, season_best 
 		FROM runners 
-		WHERE id = $1`
+		WHERE id = $1;`
 	rows, err := rr.dbHandler.Query(query, runnerID)
 
 	if err != nil {
@@ -119,7 +118,6 @@ func (rr RunnersRepository) GetRunner(runnerID string) (*models.Runner, *models.
 
 	for rows.Next() {
 		err := rows.Scan(&id, &firstName, &lastName, &age, &isActive, &country, &personalBest, &seasonBest)
-		fmt.Printf("%v", err)
 		if err != nil {
 			return nil, &models.ResponseError{
 				Message: err.Error(),
@@ -197,7 +195,7 @@ func (rr RunnersRepository) UpdateRunnerResults(runner *models.Runner) *models.R
 }
 
 func (rr RunnersRepository) GetAllRunners() ([]*models.Runner, *models.ResponseError) {
-	query := `SELECT * FROM runners`
+	query := `SELECT id, first_name, last_name, country, is_active, age, personal_best, season_best FROM runners`
 	rows, err := rr.dbHandler.Query(query)
 	if err != nil {
 		return nil, &models.ResponseError{
@@ -222,19 +220,19 @@ func (rr RunnersRepository) GetAllRunners() ([]*models.Runner, *models.ResponseE
 				Status:  http.StatusInternalServerError,
 			}
 		}
-	}
 
-	runner := &models.Runner{
-		ID:           id,
-		FirstName:    firstName,
-		LastName:     lastName,
-		Age:          age,
-		Country:      country,
-		PersonalBest: personalBest.String,
-		SeasonBest:   seasonBest.String,
-	}
+		runner := &models.Runner{
+			ID:           id,
+			FirstName:    firstName,
+			LastName:     lastName,
+			Age:          age,
+			Country:      country,
+			PersonalBest: personalBest.String,
+			SeasonBest:   seasonBest.String,
+		}
 
-	runners = append(runners, runner)
+		runners = append(runners, runner)
+	}
 
 	if rows.Err() != nil {
 		return nil, &models.ResponseError{

@@ -65,8 +65,6 @@ func (rs RunnersService) GetRunner(runnerId string) (*models.Runner, *models.Res
 		return nil, responseErr
 	}
 
-	return runner, nil
-
 	results, responseErr := rs.resultsRepository.GetAllRunnersResults(runnerId)
 	if responseErr != nil {
 		return nil, responseErr
